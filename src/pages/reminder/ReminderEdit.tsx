@@ -13,14 +13,20 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@radix-ui/react-label';
 import { PlusIcon, LoaderCircleIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ReminderEditProps {
   setReminderList: React.Dispatch<React.SetStateAction<ReminderModel[]>>;
+  editingReminder: ReminderModel | null;
+  setEditingReminder: React.Dispatch<
+    React.SetStateAction<ReminderModel | null>
+  >;
 }
 
 const ReminderEdit: React.FC<ReminderEditProps> = ({
   setReminderList,
+  editingReminder,
+  setEditingReminder,
 }: ReminderEditProps) => {
   const [formState, setFormState] = useState<ReminderModel>({
     title: '',
@@ -29,6 +35,13 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
   });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editingReminder) {
+      setFormState(editingReminder);
+      setDialogOpen(true);
+    }
+  }, [editingReminder]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -55,30 +68,37 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
     }));
   };
 
-  const handleAddReminder = async () => {
+  const handleAddUpdateReminder = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/reminder', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formState),
-      });
+      const method = editingReminder ? 'PATCH' : 'POST';
+      const response = await fetch(
+        `/api/reminder${editingReminder ? '/' + editingReminder.id : ''}`,
+        {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formState),
+        }
+      );
 
       if (response.ok) {
         const addedReminder: ReminderModel = await response.json();
-        setReminderList((prevReminderList) => [
-          addedReminder,
-          ...prevReminderList,
-        ]);
-        // 清空表单字段
+        setReminderList((prevReminderList) =>
+          editingReminder
+            ? prevReminderList.map((reminder) =>
+                reminder.id === addedReminder.id ? addedReminder : reminder
+              )
+            : [addedReminder, ...prevReminderList]
+        );
         setFormState({
           title: '',
           description: '',
-          date: new Date(),
+          date: undefined,
         });
         setDialogOpen(false);
+        setEditingReminder(null);
       } else {
         console.error('Failed to add reminder');
       }
@@ -99,7 +119,7 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
         </DialogTrigger>
         <DialogContent className="sm:max-w-[625px]">
           <DialogHeader>
-            <DialogTitle>编辑</DialogTitle>
+            <DialogTitle>{editingReminder ? '编辑' : '新建'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4 pr-4">
             <div className="grid grid-cols-6 items-center gap-4">
@@ -138,13 +158,16 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
             <Button
               type="button"
               variant={'outline'}
-              onClick={handleAddReminder}
+              onClick={() => {
+                setDialogOpen(false);
+                setEditingReminder(null);
+              }}
             >
               取消
             </Button>
             <Button
               type="button"
-              onClick={handleAddReminder}
+              onClick={handleAddUpdateReminder}
               disabled={loading}
             >
               {loading && (
