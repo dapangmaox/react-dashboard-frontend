@@ -5,8 +5,8 @@ import Layout from './components/Layout';
 import { UserContext } from './contexts/UserContext';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import Reminder from './pages/reminder/Reminder';
 import DailyWork from './pages/DailyWork';
+import Reminder from './pages/reminder';
 
 function App() {
   const userContext = useContext(UserContext);

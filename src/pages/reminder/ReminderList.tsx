@@ -1,12 +1,9 @@
+import { formatDate } from '@/lib/utils';
 import { ReminderModel } from '@/types/ReminderModel';
 import { ColumnDef } from '@tanstack/react-table';
-import { format, isValid } from 'date-fns';
+import { DataTable } from '../../components/DataTable';
 
-function formatDate(value: any) {
-  return isValid(new Date(value)) ? format(value, 'yyyy-MM-dd') : value;
-}
-
-export const columns: ColumnDef<ReminderModel>[] = [
+const columns: ColumnDef<ReminderModel>[] = [
   {
     header: '序号',
     cell: ({ row }) => row.index + 1,
@@ -30,3 +27,13 @@ export const columns: ColumnDef<ReminderModel>[] = [
     cell: ({ cell }) => formatDate(cell.getValue<Date>()),
   },
 ];
+
+interface ReminderListProps {
+  reminderList: ReminderModel[];
+}
+
+const ReminderList: React.FC<ReminderListProps> = ({ reminderList }) => {
+  return <DataTable columns={columns} data={reminderList ?? []} />;
+};
+
+export default ReminderList;
