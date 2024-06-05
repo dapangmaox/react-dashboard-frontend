@@ -8,6 +8,7 @@ interface User {
 
 interface UserContextProps {
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export const UserContext = createContext<UserContextProps | undefined>(
@@ -23,19 +24,24 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
       try {
-        const response = await fetch(
-          `/api/user/user/${'liangxwei1030@163.com'}`,
-          {
-            headers: {
-              UserID: 'liangxwei',
-            },
-          }
-        );
-        const userData: User = await response.json();
-        setUser(userData);
+        const response = await fetch(`/api/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const userData: User = await response.json();
+          setUser(userData);
+        } else {
+          localStorage.removeItem('token');
+        }
       } catch (error) {
         console.error('Failed to fetch user: ', error);
+        localStorage.removeItem('token');
       }
     };
 
@@ -43,6 +49,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
   );
 };

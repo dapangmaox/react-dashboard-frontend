@@ -1,4 +1,11 @@
-import { ClockIcon, HomeIcon, NotebookPen, UserIcon } from 'lucide-react';
+import {
+  ClockIcon,
+  CreditCardIcon,
+  HomeIcon,
+  ListTodoIcon,
+  NotebookPen,
+  UserIcon,
+} from 'lucide-react';
 import NavItem from './NavItem';
 
 const Sidebar = () => {
@@ -10,8 +17,10 @@ const Sidebar = () => {
       </div>
       <nav className="flex-grow">
         <NavItem to="/" icon={HomeIcon} label="后台首页" />
+        <NavItem to="/todo" icon={ListTodoIcon} label="待办事项" />
         <NavItem to="/reminder" icon={ClockIcon} label="提醒事项" />
         <NavItem to="/daily-work" icon={NotebookPen} label="工作记录" />
+        <NavItem to="/bill" icon={CreditCardIcon} label="我的账单" />
         <NavItem to="/profile" icon={UserIcon} label="个人中心" />
       </nav>
     </div>

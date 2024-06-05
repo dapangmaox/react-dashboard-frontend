@@ -1,8 +1,5 @@
-import { DatePicker } from '@/components/DatePicker';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { ReminderModel } from '@/types/ReminderModel';
 import {
   Dialog,
   DialogContent,
@@ -11,16 +8,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Reminder } from '@/types/reminder';
 import { Label } from '@radix-ui/react-label';
-import { PlusIcon, LoaderCircleIcon } from 'lucide-react';
+import { LoaderCircleIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface ReminderEditProps {
-  setReminderList: React.Dispatch<React.SetStateAction<ReminderModel[]>>;
-  editingReminder: ReminderModel | null;
-  setEditingReminder: React.Dispatch<
-    React.SetStateAction<ReminderModel | null>
-  >;
+  setReminderList: React.Dispatch<React.SetStateAction<Reminder[]>>;
+  editingReminder: Reminder | null;
+  setEditingReminder: React.Dispatch<React.SetStateAction<Reminder | null>>;
 }
 
 const ReminderEdit: React.FC<ReminderEditProps> = ({
@@ -28,7 +26,7 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
   editingReminder,
   setEditingReminder,
 }: ReminderEditProps) => {
-  const [formState, setFormState] = useState<ReminderModel>({
+  const [formState, setFormState] = useState<Reminder>({
     title: '',
     description: '',
     date: undefined,
@@ -84,7 +82,7 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
       );
 
       if (response.ok) {
-        const addedReminder: ReminderModel = await response.json();
+        const addedReminder: Reminder = await response.json();
         setReminderList((prevReminderList) =>
           editingReminder
             ? prevReminderList.map((reminder) =>

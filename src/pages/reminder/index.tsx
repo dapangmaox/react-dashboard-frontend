@@ -1,19 +1,17 @@
-import { ReminderModel } from '@/types/ReminderModel';
 import { useEffect, useState } from 'react';
-import ReminderEdit from './ReminderEdit';
-import ReminderList from './ReminderList';
+import ReminderEdit from './reminder-edit';
+import ReminderList from './reminder-list';
+import { Reminder } from '@/types/reminder';
 
-const Reminder = () => {
-  const [reminderList, setReminderList] = useState<ReminderModel[]>([]);
-  const [editingReminder, setEditingReminder] = useState<ReminderModel | null>(
-    null
-  );
+const ReminderPage = () => {
+  const [reminderList, setReminderList] = useState<Reminder[]>([]);
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
 
   useEffect(() => {
     const fetchReminderList = async () => {
       try {
         const response = await fetch(`/api/reminder`);
-        const list: ReminderModel[] = await response.json();
+        const list: Reminder[] = await response.json();
         setReminderList(list);
       } catch (error) {
         console.error('Failed to fetch reminder list: ', error);
@@ -23,7 +21,7 @@ const Reminder = () => {
     fetchReminderList();
   }, []);
 
-  const handleEdit = (reminder: ReminderModel) => {
+  const handleEdit = (reminder: Reminder) => {
     setEditingReminder(reminder);
   };
 
@@ -61,4 +59,4 @@ const Reminder = () => {
   );
 };
 
-export default Reminder;
+export default ReminderPage;

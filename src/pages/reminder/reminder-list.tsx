@@ -1,9 +1,4 @@
-import { formatDate } from '@/lib/utils';
-import { ReminderModel } from '@/types/ReminderModel';
-import { ColumnDef } from '@tanstack/react-table';
-import { DataTable } from '../../components/DataTable';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,10 +6,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { formatDate } from '@/lib/utils';
+import { Reminder } from '@/types/reminder';
+import { ColumnDef } from '@tanstack/react-table';
+import { useState } from 'react';
+import { DataTable } from '../../components/ui/data-table';
 
 interface ReminderListProps {
-  reminderList: ReminderModel[];
-  onEdit: (reminder: ReminderModel) => void;
+  reminderList: Reminder[];
+  onEdit: (reminder: Reminder) => void;
   onDelete: (reminderId: number) => void;
 }
 
@@ -28,7 +28,7 @@ const ReminderList: React.FC<ReminderListProps> = ({
     null
   );
 
-  const columns: ColumnDef<ReminderModel>[] = [
+  const columns: ColumnDef<Reminder>[] = [
     {
       header: '序号',
       cell: ({ row }) => row.index + 1,

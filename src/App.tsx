@@ -1,41 +1,72 @@
-import { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import Layout from './components/Layout';
-import { UserContext } from './contexts/UserContext';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import DailyWork from './pages/DailyWork';
-import Reminder from './pages/reminder';
+import Login from './components/Login';
+import PrivateRoute from './components/PrivateRoute';
+import DailyWork from './pages/daily-work';
+import Dashboard from './pages/dashboard';
+import Profile from './pages/profile';
+import ReminderPage from './pages/reminder';
+import TodoPage from './pages/todo';
 
 function App() {
-  const userContext = useContext(UserContext);
-
-  if (!userContext) {
-    throw new Error('App Component must be used within a UserProvider');
-  }
-
-  const { user } = userContext;
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <>
-      <div className="bg-slate-50">
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/reminder" element={<Reminder />} />
-              <Route path="/daily-work" element={<DailyWork />} />
-              <Route path="/profile" element={<Profile />} />
-            </Routes>
-          </Layout>
-        </Router>
-      </div>
-    </>
+    <div className="bg-slate-50">
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <Layout>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/todo"
+                    element={
+                      <PrivateRoute>
+                        <TodoPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/reminder"
+                    element={
+                      <PrivateRoute>
+                        <ReminderPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/daily-work"
+                    element={
+                      <PrivateRoute>
+                        <DailyWork />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <PrivateRoute>
+                        <Profile />
+                      </PrivateRoute>
+                    }
+                  />
+                </Routes>
+              </Layout>
+            }
+          />
+        </Routes>
+      </Router>
+    </div>
   );
 }
 
