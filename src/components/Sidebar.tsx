@@ -12,7 +12,7 @@ const Sidebar = () => {
   return (
     <div className="w-64 h-full text-gray-700 flex flex-col px-4">
       <div className="mb-3">
-        <div className="p-4 text-lg font-bold text-center pt-6">大胖猫</div>
+        <div className="p-4 text-lg font-bold text-center pt-4">大胖猫</div>
         <div className="flex w-full h-px bg-custom-gradient"></div>
       </div>
       <nav className="flex-grow">

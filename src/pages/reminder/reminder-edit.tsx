@@ -14,6 +14,8 @@ import { Reminder } from '@/types/reminder';
 import { Label } from '@radix-ui/react-label';
 import { LoaderCircleIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import axiosInstance from '@/utils/axios-config';
+import { Response } from '@/types';
 
 interface ReminderEditProps {
   setReminderList: React.Dispatch<React.SetStateAction<Reminder[]>>;
@@ -69,20 +71,21 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
   const handleAddUpdateReminder = async () => {
     setLoading(true);
     try {
-      const method = editingReminder ? 'PATCH' : 'POST';
-      const response = await fetch(
-        `/api/reminder${editingReminder ? '/' + editingReminder.id : ''}`,
-        {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formState),
-        }
-      );
+      const url = `/reminder${editingReminder ? '/' + editingReminder.id : ''}`;
+      const method = editingReminder ? 'patch' : 'post';
 
-      if (response.ok) {
-        const addedReminder: Reminder = await response.json();
+      const response = await axiosInstance<Response<Reminder>>({
+        method,
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: formState,
+      });
+
+      const { message, data: addedReminder } = response.data;
+
+      if (message === 'success') {
         setReminderList((prevReminderList) =>
           editingReminder
             ? prevReminderList.map((reminder) =>

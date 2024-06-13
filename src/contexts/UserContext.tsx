@@ -1,10 +1,7 @@
-import { ReactNode, createContext, useEffect, useState } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { Response, User } from '@/types';
+import axiosInstance from '@/utils/axios-config';
+import { ReactNode, createContext, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface UserContextProps {
   user: User | null;
@@ -21,6 +18,8 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,16 +27,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (!token) return;
 
       try {
-        const response = await fetch(`/api/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const userData: User = await response.json();
-          setUser(userData);
+        const response = await axiosInstance.get<Response<User>>('/profile');
+        const { message, data } = response.data;
+        if (message === 'success') {
+          setUser(data);
         } else {
           localStorage.removeItem('token');
+          navigateRef.current('/login');
         }
       } catch (error) {
         console.error('Failed to fetch user: ', error);

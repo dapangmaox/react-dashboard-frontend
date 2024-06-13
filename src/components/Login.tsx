@@ -1,6 +1,8 @@
 import { UserContext } from '@/contexts/UserContext';
+import { Profile, Response } from '@/types';
+import axiosInstance from '@/utils/axios-config';
 import { useContext, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -19,16 +21,15 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
+      const response = await axiosInstance<Response<Profile>>({
+        method: 'post',
+        url: '/auth/login',
+        data: { username, password },
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const { message, data } = response.data;
+
+      if (message === 'success') {
         localStorage.setItem('token', data.access_token);
         setUser(data.user);
         const from =

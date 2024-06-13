@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import ReminderEdit from './reminder-edit';
 import ReminderList from './reminder-list';
 import { Reminder } from '@/types/reminder';
+import axiosInstance from '@/utils/axios-config';
 
 const ReminderPage = () => {
   const [reminderList, setReminderList] = useState<Reminder[]>([]);
@@ -10,8 +11,8 @@ const ReminderPage = () => {
   useEffect(() => {
     const fetchReminderList = async () => {
       try {
-        const response = await fetch(`/api/reminder`);
-        const list: Reminder[] = await response.json();
+        const response = await axiosInstance.get('/reminder');
+        const list: Reminder[] = response.data.data;
         setReminderList(list);
       } catch (error) {
         console.error('Failed to fetch reminder list: ', error);
@@ -27,11 +28,11 @@ const ReminderPage = () => {
 
   const handleDelete = async (reminderId: number) => {
     try {
-      const response = await fetch(`/api/reminder/${reminderId}`, {
-        method: 'DELETE',
-      });
+      const response = await axiosInstance.delete(`/reminder/${reminderId}`);
 
-      if (response.ok) {
+      const { message } = response.data;
+
+      if (message === 'success') {
         setReminderList((prevReminderList) =>
           prevReminderList.filter((reminder) => reminder.id !== reminderId)
         );

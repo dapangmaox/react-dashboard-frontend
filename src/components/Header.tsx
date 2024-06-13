@@ -13,7 +13,7 @@ const Header = () => {
       <div className="text-lg font-bold"></div>
       <div className="flex items-center space-x-4">
         <div className="p-2 rounded-full text-slate-700">
-          Welcome, {user?.name}
+          Welcome, {user?.username}
         </div>
       </div>
     </div>
