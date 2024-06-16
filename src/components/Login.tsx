@@ -1,5 +1,5 @@
 import { UserContext } from '@/contexts/UserContext';
-import { Profile, Response } from '@/types';
+import { Profile, ApiResponse } from '@/types';
 import axiosInstance from '@/utils/axios-config';
 import { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance<Response<Profile>>({
+      const response = await axiosInstance<ApiResponse<Profile>>({
         method: 'post',
         url: '/auth/login',
         data: { username, password },

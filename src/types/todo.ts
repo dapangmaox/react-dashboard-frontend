@@ -2,7 +2,7 @@ export interface Todo {
   id?: number;
   title: string;
   description: string;
-  dueDate: Date;
+  dueDate?: Date;
   createdAt?: string;
   updatedAt?: string;
   priority?: TodoPriority;

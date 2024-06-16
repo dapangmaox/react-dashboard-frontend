@@ -1,4 +1,4 @@
-import { Response, User } from '@/types';
+import { ApiResponse, User } from '@/types';
 import axiosInstance from '@/utils/axios-config';
 import { ReactNode, createContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +27,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if (!token) return;
 
       try {
-        const response = await axiosInstance.get<Response<User>>('/profile');
+        const response = await axiosInstance.get<ApiResponse<User>>('/profile');
         const { message, data } = response.data;
         if (message === 'success') {
           setUser(data);

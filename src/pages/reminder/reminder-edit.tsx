@@ -15,7 +15,7 @@ import { Label } from '@radix-ui/react-label';
 import { LoaderCircleIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/utils/axios-config';
-import { Response } from '@/types';
+import { ApiResponse } from '@/types';
 
 interface ReminderEditProps {
   setReminderList: React.Dispatch<React.SetStateAction<Reminder[]>>;
@@ -74,7 +74,7 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
       const url = `/reminder${editingReminder ? '/' + editingReminder.id : ''}`;
       const method = editingReminder ? 'patch' : 'post';
 
-      const response = await axiosInstance<Response<Reminder>>({
+      const response = await axiosInstance<ApiResponse<Reminder>>({
         method,
         url,
         headers: {
@@ -136,6 +136,15 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
             </div>
             <div className="grid grid-cols-6 items-center gap-4">
               <Label htmlFor="username" className="text-right">
+                日期
+              </Label>
+              <DatePicker
+                selectedDate={formState.date}
+                onDateChange={handleDateChange}
+              />
+            </div>
+            <div className="grid grid-cols-6 items-center gap-4">
+              <Label htmlFor="username" className="text-right">
                 备注
               </Label>
               <Textarea
@@ -143,15 +152,6 @@ const ReminderEdit: React.FC<ReminderEditProps> = ({
                 value={formState.description}
                 onChange={handleDescriptionChange}
                 className="col-span-5"
-              />
-            </div>
-            <div className="grid grid-cols-6 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                日期
-              </Label>
-              <DatePicker
-                selectedDate={formState.date}
-                onDateChange={handleDateChange}
               />
             </div>
           </div>

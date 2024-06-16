@@ -7,5 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(value: any) {
-  return isValid(new Date(value)) ? format(value, 'yyyy-MM-dd') : value;
+  return value && isValid(new Date(value))
+    ? format(value, 'yyyy-MM-dd')
+    : value;
 }

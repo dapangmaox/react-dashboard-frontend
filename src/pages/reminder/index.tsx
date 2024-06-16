@@ -3,10 +3,12 @@ import ReminderEdit from './reminder-edit';
 import ReminderList from './reminder-list';
 import { Reminder } from '@/types/reminder';
 import axiosInstance from '@/utils/axios-config';
+import { useToast } from '@/components/ui/use-toast';
 
 const ReminderPage = () => {
   const [reminderList, setReminderList] = useState<Reminder[]>([]);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchReminderList = async () => {
@@ -33,6 +35,9 @@ const ReminderPage = () => {
       const { message } = response.data;
 
       if (message === 'success') {
+        toast({
+          description: 'Delete success.',
+        });
         setReminderList((prevReminderList) =>
           prevReminderList.filter((reminder) => reminder.id !== reminderId)
         );
