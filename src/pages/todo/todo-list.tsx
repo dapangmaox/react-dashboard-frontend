@@ -56,21 +56,23 @@ const TodoList: React.FC<TodoListProps> = ({ todoList, onEdit, onDelete }) => {
 
         switch (priority) {
           case TodoPriority.High:
-            priorityClassName = 'bg-red-400 text-white'; // Red background and white text for high priority
+            priorityClassName = 'bg-red-400';
             priorityText = '高';
             break;
           case TodoPriority.Medium:
-            priorityClassName = 'bg-yellow-400 text-black'; // Yellow background and black text for medium priority
+            priorityClassName = 'bg-yellow-400';
             priorityText = '中';
             break;
           case TodoPriority.Low:
-            priorityClassName = 'bg-green-400 text-white'; // Green background and white text for low priority
+            priorityClassName = 'bg-green-400';
             priorityText = '低';
             break;
         }
 
         return (
-          <div className={`px-2 py-1 rounded-md ${priorityClassName}`}>
+          <div
+            className={`px-2 py-1 rounded-md text-white w-16 text-center ${priorityClassName}`}
+          >
             {priorityText}
           </div>
         );

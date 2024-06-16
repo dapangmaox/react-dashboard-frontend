@@ -1,5 +1,5 @@
-import { DatePicker } from '@/components/ui/date-picker';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -15,15 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { StatusMapping } from '@/constants';
+import { ApiResponse } from '@/types';
 import { Todo, TodoPriority, TodoStatus } from '@/types/todo';
+import axiosInstance from '@/utils/axios-config';
 import { Label } from '@radix-ui/react-label';
 import { LoaderCircleIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import axiosInstance from '@/utils/axios-config';
-import { ApiResponse } from '@/types';
-import { StatusMapping } from '@/constants';
 
 interface TodoEditProps {
   setTodoList: React.Dispatch<React.SetStateAction<Todo[]>>;
@@ -174,7 +174,7 @@ const TodoEdit: React.FC<TodoEditProps> = ({
                 onValueChange={handlePriorityChange}
               >
                 <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Theme" />
+                  <SelectValue placeholder="请选择优先级" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="high">High</SelectItem>
@@ -192,7 +192,7 @@ const TodoEdit: React.FC<TodoEditProps> = ({
                 onValueChange={handleStatusChange}
               >
                 <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Theme" />
+                  <SelectValue placeholder="请选择状态" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={TodoStatus.NotStarted}>
