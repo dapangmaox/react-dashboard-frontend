@@ -1,3 +1,4 @@
+import FormFieldWrapper from '@/components/FormFieldWrapper';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
 import {
@@ -8,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Form, FormField } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -21,9 +23,11 @@ import { StatusMapping } from '@/constants';
 import { ApiResponse } from '@/types';
 import { Todo, TodoPriority, TodoStatus } from '@/types/todo';
 import axiosInstance from '@/utils/axios-config';
-import { Label } from '@radix-ui/react-label';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { LoaderCircleIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 interface TodoEditProps {
   setTodoList: React.Dispatch<React.SetStateAction<Todo[]>>;
@@ -31,70 +35,43 @@ interface TodoEditProps {
   setEditingTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
 }
 
-const initialState: Todo = {
-  title: '',
-  description: '',
-  dueDate: undefined,
-  priority: TodoPriority.Medium,
-  status: TodoStatus.NotStarted,
-};
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: '标题长度最少为2',
+  }),
+  description: z.string(),
+  dueDate: z.date(),
+  priority: z.nativeEnum(TodoPriority),
+  status: z.nativeEnum(TodoStatus),
+});
 
 const TodoEdit: React.FC<TodoEditProps> = ({
   setTodoList,
   editingTodo,
   setEditingTodo,
 }: TodoEditProps) => {
-  const [formState, setFormState] = useState<Todo>(initialState);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const form = useForm<Todo>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      dueDate: undefined,
+      priority: TodoPriority.Medium,
+      status: TodoStatus.NotStarted,
+    },
+  });
+
   useEffect(() => {
     if (editingTodo) {
-      setFormState(editingTodo);
+      form.reset(editingTodo);
       setDialogOpen(true);
     }
-  }, [editingTodo]);
+  }, [editingTodo, form]);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      title: value,
-    }));
-  };
-
-  const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const { value } = e.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      description: value,
-    }));
-  };
-
-  const handleDueDateChange = (date: Date | undefined) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      dueDate: date || new Date(),
-    }));
-  };
-
-  const handlePriorityChange = (priority: TodoPriority) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      priority,
-    }));
-  };
-
-  const handleStatusChange = (status: TodoStatus) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      status,
-    }));
-  };
-
-  const handleAddUpdateTodo = async () => {
+  const handleAddUpdateTodo = async (data: Todo) => {
     setLoading(true);
     try {
       const url = `/todo${editingTodo ? '/' + editingTodo.id : ''}`;
@@ -106,7 +83,7 @@ const TodoEdit: React.FC<TodoEditProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        data: formState,
+        data,
       });
 
       const { message, data: addedTodo } = response.data;
@@ -119,7 +96,7 @@ const TodoEdit: React.FC<TodoEditProps> = ({
               )
             : [addedTodo, ...prevTodoList]
         );
-        setFormState(initialState);
+        form.reset();
         setDialogOpen(false);
         setEditingTodo(null);
       } else {
@@ -141,107 +118,108 @@ const TodoEdit: React.FC<TodoEditProps> = ({
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[625px]">
-          <DialogHeader>
-            <DialogTitle>{editingTodo ? '编辑' : '新建'}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4 pr-4">
-            <div className="grid grid-cols-6 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                标题
-              </Label>
-              <Input
-                id="title"
-                value={formState.title}
-                onChange={handleTitleChange}
-                className="col-span-5"
-              />
-            </div>
-            <div className="grid grid-cols-6 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                截止日期
-              </Label>
-              <DatePicker
-                selectedDate={formState.dueDate}
-                onDateChange={handleDueDateChange}
-              />
-            </div>
-            <div className="grid grid-cols-6 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                优先级
-              </Label>
-              <Select
-                value={formState.priority}
-                onValueChange={handlePriorityChange}
-              >
-                <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="请选择优先级" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-6 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                状态
-              </Label>
-              <Select
-                value={formState.status}
-                onValueChange={handleStatusChange}
-              >
-                <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="请选择状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={TodoStatus.NotStarted}>
-                    {StatusMapping[TodoStatus.NotStarted]}
-                  </SelectItem>
-                  <SelectItem value={TodoStatus.InProgress}>
-                    {StatusMapping[TodoStatus.InProgress]}
-                  </SelectItem>
-                  <SelectItem value={TodoStatus.Completed}>
-                    {StatusMapping[TodoStatus.Completed]}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-6 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                备注
-              </Label>
-              <Textarea
-                id="description"
-                value={formState.description}
-                onChange={handleDescriptionChange}
-                className="col-span-5"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant={'outline'}
-              onClick={() => {
-                setFormState(initialState);
-                setDialogOpen(false);
-                setEditingTodo(null);
-              }}
+          <Form {...form}>
+            <DialogHeader>
+              <DialogTitle>{editingTodo ? '编辑' : '新建'}</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={form.handleSubmit(handleAddUpdateTodo)}
+              className="space-y-8 mr-4"
             >
-              取消
-            </Button>
-            <Button
-              type="button"
-              onClick={handleAddUpdateTodo}
-              disabled={loading}
-            >
-              {loading && (
-                <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              保存
-            </Button>
-          </DialogFooter>
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormFieldWrapper label="标题">
+                    <Input {...field} />
+                  </FormFieldWrapper>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormFieldWrapper label="截止日期">
+                    <DatePicker
+                      {...field}
+                      selectedDate={field.value}
+                      onDateChange={field.onChange}
+                    />
+                  </FormFieldWrapper>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormFieldWrapper label="优先级">
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-[280px]">
+                        <SelectValue placeholder="请选择优先级" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormFieldWrapper>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormFieldWrapper label="状态">
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-[280px]">
+                        <SelectValue placeholder="请选择状态" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={TodoStatus.NotStarted}>
+                          {StatusMapping[TodoStatus.NotStarted]}
+                        </SelectItem>
+                        <SelectItem value={TodoStatus.InProgress}>
+                          {StatusMapping[TodoStatus.InProgress]}
+                        </SelectItem>
+                        <SelectItem value={TodoStatus.Completed}>
+                          {StatusMapping[TodoStatus.Completed]}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormFieldWrapper>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormFieldWrapper label="备注">
+                    <Textarea id="description" {...field} />
+                  </FormFieldWrapper>
+                )}
+              />
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant={'outline'}
+                  onClick={() => {
+                    setDialogOpen(false);
+                    setEditingTodo(null);
+                    form.reset();
+                  }}
+                >
+                  取消
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading && (
+                    <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  保存
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
